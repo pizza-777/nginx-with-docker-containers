@@ -1,0 +1,43 @@
+###############################################################################
+#                          Generated on phpdocker.io                          #
+###############################################################################
+version: "3.1"
+services:
+
+    mariadb:
+      image: mariadb:10.4
+      container_name: tdocs-mariadb
+      working_dir: /application
+      volumes:
+        - ./mariadb:/var/lib/mysql
+      environment:
+        - MYSQL_ROOT_PASSWORD=pass
+        - MYSQL_DATABASE=tdocs
+        - MYSQL_USER=admin
+        - MYSQL_PASSWORD=pass
+      ports:
+        - "8092:3306"
+
+    webserver:
+      image: nginx:alpine
+      container_name: tdocs-webserver
+      working_dir: /application
+      volumes:
+          - .:/application
+          - ./phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      ports:
+       - "8090:80"
+
+
+    php-fpm:
+      build: phpdocker/php-fpm
+      container_name: tdocs-php-fpm
+      working_dir: /application
+      volumes:
+        - .:/application
+        - ./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/7.4/fpm/conf.d/99-overrides.ini
+        - ./phpdocker/php-fpm/xdebug.ini:/etc/php/7.4/mods-available/xdebug.ini
+      ports:
+      - 9002:9000
+
+
